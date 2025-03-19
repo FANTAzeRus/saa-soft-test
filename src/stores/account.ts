@@ -4,7 +4,7 @@ import type {Account} from "@/types/Account.ts";
 
 const LOCAL_STORAGE_KEY: string = "accounts";
 
-const resotoreFromLocalStorage = (): Account[] => {
+const restoreFromLocalStorage = (): Account[] => {
   const dataFromLocalStorage:string | null = localStorage.getItem(LOCAL_STORAGE_KEY);
   if(dataFromLocalStorage) {
     return JSON.parse(dataFromLocalStorage);
@@ -14,7 +14,7 @@ const resotoreFromLocalStorage = (): Account[] => {
 }
 
 export const useAccountStore = defineStore('account', () => {
-  const accounts = ref<Account[]>(resotoreFromLocalStorage());
+  const accounts = ref<Account[]>(restoreFromLocalStorage());
 
   const addNewAccount = () => {
     accounts.value.push({
