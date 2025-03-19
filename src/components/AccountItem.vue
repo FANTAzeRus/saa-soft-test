@@ -9,7 +9,7 @@
         @blur="validateAndSave"
         :status="form.label.status"
         :passively-activated="true"
-        placeholder="Метки..."
+        placeholder="Значение..."
     />
 
     <n-select
@@ -18,7 +18,7 @@
         @change="(newType: RecordType) => changeRecordType(newType)"
         :passively-activated="true"
         :status="form.recordType.status"
-        placeholder="Тип записи..."
+        placeholder="Значение..."
     />
 
     <template v-if="account.recordType === RecordType.LDAP">
@@ -27,7 +27,7 @@
           @blur="validateAndSave"
           :status="form.login.status"
           :passively-activated="true"
-          placeholder="Логин..."
+          placeholder="Значение..."
       />
     </template>
 
@@ -38,7 +38,7 @@
             @blur="validateAndSave"
             :status="form.login.status"
             :passively-activated="true"
-            placeholder="Логин..."
+            placeholder="Значение..."
         />
 
         <n-input
@@ -49,7 +49,7 @@
             @blur="validateAndSave"
             :status="form.password.status"
             :passively-activated="true"
-            placeholder="Пароль..."
+            placeholder="Значение..."
         />
       </div>
     </template>

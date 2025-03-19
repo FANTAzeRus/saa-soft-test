@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia'
 import {ref} from "vue";
 import type {Account} from "@/types/Account.ts";
+import {RecordType} from "@/types/RecordType.ts";
 
 const LOCAL_STORAGE_KEY: string = "accounts";
 
@@ -19,7 +20,7 @@ export const useAccountStore = defineStore('account', () => {
   const addNewAccount = () => {
     accounts.value.push({
       label: null,
-      recordType: null,
+      recordType: RecordType.LOCAL,
       login: null,
       password: null,
     });

@@ -10,6 +10,9 @@
       </div>
     </div>
 
+    <div class="container">
+      <LabelInfo />
+    </div>
 
     <div class="container" v-if="accounts.length">
       <AccountTitle />
@@ -26,6 +29,7 @@ import AccountItem from "@/components/AccountItem.vue";
 import PlusIcon from "@/components/PlusIcon.vue";
 import {NButton} from "naive-ui";
 import AccountTitle from "@/components/AccountTitle.vue";
+import LabelInfo from "@/components/LabelInfo.vue";
 
 const store = useAccountStore();
 
