@@ -31,12 +31,7 @@ const store = useAccountStore();
 
 const accounts = computed(() => store.accounts)
 const addNewAccountHandler = () => {
-  store.addNewAccount({
-    label: null,
-    recordType: null,
-    login: '222',
-    password: '333',
-  });
+  store.addNewAccount();
 }
 
 </script>

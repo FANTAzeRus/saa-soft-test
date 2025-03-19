@@ -21,8 +21,13 @@ const resotoreFromLocalStorage = (): Account[] => {
 export const useAccountStore = defineStore('account', () => {
   const accounts = ref<Account[]>(resotoreFromLocalStorage());
 
-  const addNewAccount = (account: Account) => {
-    accounts.value.push(account);
+  const addNewAccount = () => {
+    accounts.value.push({
+      label: null,
+      recordType: null,
+      login: null,
+      password: null,
+    });
 
     saveToLocalStorage(accounts.value);
   }
