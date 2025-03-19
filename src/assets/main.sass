@@ -1,0 +1,39 @@
+body
+  box-sizing: border-box
+
+.container
+  width: 56rem
+  margin: 0 auto
+
+.account
+  &__title
+    display: flex
+    align-items: center
+    gap: 1rem
+    margin: 2rem 0
+
+  &__title-line
+    display: grid
+    grid-template-columns: 1fr 1fr 1fr 1fr 40px
+    align-items: center
+    gap: 1rem
+    margin-bottom: 1rem
+    color: gray
+
+  &__line
+    display: grid
+    grid-template-columns: 1fr 1fr 2fr 40px
+    align-items: center
+    gap: 1rem
+    margin-bottom: 1rem
+
+    &:last-child
+      margin-bottom: 0
+
+    button
+      width: 40px
+
+
+  &__double
+    display: flex
+    gap: 1rem
