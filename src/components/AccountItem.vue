@@ -9,6 +9,7 @@
         @blur="validateAndSave"
         :status="form.label.status"
         :passively-activated="true"
+        placeholder="Метки..."
     />
 
     <n-select
@@ -16,6 +17,8 @@
         :options="recordTypesList"
         @change="(newType: RecordType) => changeRecordType(newType)"
         :passively-activated="true"
+        :status="form.recordType.status"
+        placeholder="Тип записи..."
     />
 
     <template v-if="account.recordType === RecordType.LDAP">
@@ -24,6 +27,7 @@
           @blur="validateAndSave"
           :status="form.login.status"
           :passively-activated="true"
+          placeholder="Логин..."
       />
     </template>
 
@@ -34,6 +38,7 @@
             @blur="validateAndSave"
             :status="form.login.status"
             :passively-activated="true"
+            placeholder="Логин..."
         />
 
         <n-input
@@ -42,14 +47,15 @@
             v-model:value="form.password.data"
             error-message="Passwords do not match"
             @blur="validateAndSave"
-            :status="form.login.status"
+            :status="form.password.status"
             :passively-activated="true"
+            placeholder="Пароль..."
         />
       </div>
     </template>
 
     <n-button ghost :bordered="false" @click="removeAccountHandler">
-      <TrashIcon />
+      <TrashIcon/>
     </n-button>
 
   </div>
@@ -57,15 +63,15 @@
 
 <script setup lang="ts">
 
-import type {Account, AccountForm} from "@/types/Account.ts";
+import type {Account, AccountFormData} from "@/types/Account.ts";
 import {RecordType} from "@/types/RecordType.ts";
 import type {LabelItem} from "@/types/Label.ts";
-import {reactive} from "vue";
+import {computed, reactive, ref} from "vue";
 import {NButton, NInput, NSelect} from "naive-ui";
 import TrashIcon from "@/components/TrashIcon.vue";
 import {useAccountStore} from "@/stores/account.ts";
 import {ValidationStatus} from "@/types/ValidationStatus.ts";
-import {labelValidator, loginValidator, passwordValidator} from "@/utils/validators.ts";
+import {labelValidator, loginValidator, passwordValidator, recordTypeValidator} from "@/utils/validators.ts";
 
 interface Props {
   account: Account;
@@ -84,29 +90,26 @@ const customDisplayLabel = (label: LabelItem[] | null | undefined): string => {
   return "";
 }
 
-const form = reactive({
+const form = reactive<AccountFormData>({
   label: {
-    required: false,
     data: customDisplayLabel(account.label),
     status: ValidationStatus.SUCCESS,
     validator: labelValidator
   },
   recordType: {
-    required: true,
     data: account.recordType,
-    status: ValidationStatus.SUCCESS
+    status: ValidationStatus.SUCCESS,
+    validator: recordTypeValidator
   },
   login: {
-    required: true,
     data: account.login,
     status: ValidationStatus.SUCCESS,
     validator: loginValidator
   },
   password: {
-    required: true,
     data: account.password,
     status: ValidationStatus.SUCCESS,
-    validator: passwordValidator()
+    validator: passwordValidator
   },
 });
 
@@ -130,26 +133,83 @@ const changeRecordType = (newType: RecordType): void => {
   validateAndSave();
 }
 
+const hasErrors = computed(() => {
+  const errors = ref([]);
+  for (const field in form) {
+    const value = form[field];
+    if(value.status === ValidationStatus.ERROR) {
+      errors.value.push(field);
+    }
+  }
+
+  return errors.value.length;
+});
+
+const stringToLabels = (str: string): LabelItem[] => {
+  return str
+      .split(';')
+      .map(item => ({text: item.trim()}));
+}
+
+const labelsToString = (labels: LabelItem[]):string => {
+  return labels.map(item => item.text).join('; ')
+}
+
+
 const validateAndSave = () => {
-  const data: AccountForm = {};
+  const data: Account = {
+    label: null,
+    recordType: null,
+    login: null,
+    password: null,
+ };
 
   Object.keys(form).forEach((field) => {
-      if(form[field].validator && typeof form[field].validator === 'function') {
-        form[field].status = form[field].validator(form[field].data) ? ValidationStatus.SUCCESS : ValidationStatus.ERROR;
-      }
-      if(field === 'label') {
-        data[field] = form[field].data.split(';').map(item => ({text: item.trim()}));
-      } else {
-        data[field] = form[field].data;
-      }
+    switch (field) {
+      case "label":
+        if (form.label.data) {
+          data.label = stringToLabels(form.label.data);
+          form.label.status = labelValidator(form.label.data) ? ValidationStatus.SUCCESS : ValidationStatus.ERROR;
+          form.label.data = labelsToString(data.label);
+        }
+        break;
 
-      if(field === 'recordType' && form[field].data === RecordType.LDAP) {
-        form['password'].data = null;
-      }
+      case "recordType":
+        if(form.recordType.data && form.recordType.data === RecordType.LDAP) {
+          data.password = null;
+        }
+        if(form.recordType.data) {}
+          data.recordType = form.recordType.data as RecordType;
+        form.recordType.status = recordTypeValidator(form.recordType.data) ? ValidationStatus.SUCCESS : ValidationStatus.ERROR;
+        break;
+
+      case "login":
+        form.login.status = loginValidator(form.login.data) ? ValidationStatus.SUCCESS : ValidationStatus.ERROR;
+        data.login = form.login.data;
+        break;
+
+      case "password":
+        if(form.recordType.data === RecordType.LDAP) {
+          form.password.status = ValidationStatus.SUCCESS;
+          form.password.data = null;
+        } else {
+          form.password.status = passwordValidator(form.password.data) ? ValidationStatus.SUCCESS : ValidationStatus.ERROR;
+          data.password = form.password.data;
+        }
+        break;
+
+
+    }
+
   });
 
 
   store.updateAccount(idx, data);
+
+  if (!hasErrors.value) {
+    store.saveToLocalStorage();
+  }
+
 }
 
 </script>

@@ -1,13 +1,8 @@
 import {defineStore} from 'pinia'
 import {ref} from "vue";
 import type {Account} from "@/types/Account.ts";
-import {RecordType} from "@/types/RecordType.ts";
 
 const LOCAL_STORAGE_KEY: string = "accounts";
-
-const saveToLocalStorage = (data: Account[]) => {
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
-}
 
 const resotoreFromLocalStorage = (): Account[] => {
   const dataFromLocalStorage:string | null = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -28,8 +23,10 @@ export const useAccountStore = defineStore('account', () => {
       login: null,
       password: null,
     });
+  }
 
-    saveToLocalStorage(accounts.value);
+  const saveToLocalStorage = () => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(accounts.value));
   }
 
   const updateAccount = (idx: number, parts: Object) => {
@@ -37,13 +34,11 @@ export const useAccountStore = defineStore('account', () => {
       ...accounts.value[idx],
       ...parts
     }
-
-    saveToLocalStorage(accounts.value);
   }
 
   const removeAccount = (idx: number) => {
     accounts.value.splice(idx, 1);
-    saveToLocalStorage(accounts.value);
+    saveToLocalStorage();
   }
 
 
@@ -51,6 +46,7 @@ export const useAccountStore = defineStore('account', () => {
     accounts,
     addNewAccount,
     updateAccount,
-    removeAccount
+    removeAccount,
+    saveToLocalStorage,
   }
 })
