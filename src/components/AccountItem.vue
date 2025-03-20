@@ -8,7 +8,7 @@
         v-model:value="form.label.data"
         @blur="validateAndSave"
         :status="form.label.status"
-        :passively-activated="true"
+        :autofocus="false"
         placeholder="Значение..."
     />
 
@@ -16,7 +16,7 @@
         v-model:value="form.recordType.data"
         :options="recordTypesList"
         @change="(newType: AccountType) => changeRecordType(newType)"
-        :passively-activated="true"
+        :autofocus="false"
         :status="form.recordType.status"
         placeholder="Значение..."
     />
@@ -26,7 +26,7 @@
           v-model:value="form.login.data"
           @blur="validateAndSave"
           :status="form.login.status"
-          :passively-activated="true"
+          :autofocus="false"
           placeholder="Значение..."
       />
     </template>
@@ -37,7 +37,7 @@
             v-model:value="form.login.data"
             @blur="validateAndSave"
             :status="form.login.status"
-            :passively-activated="true"
+            :autofocus="false"
             placeholder="Значение..."
         />
 
@@ -48,7 +48,7 @@
             error-message="Passwords do not match"
             @blur="validateAndSave"
             :status="form.password.status"
-            :passively-activated="true"
+            :autofocus="false"
             placeholder="Значение..."
         />
       </div>
@@ -134,9 +134,9 @@ const changeRecordType = (newType: AccountType): void => {
 }
 
 const hasErrors = computed(() => {
-  return Object.keys(form).every((fieldName: FieldName) => {
+  return Object.keys(form).any((fieldName: FieldName) => {
     const field = form[fieldName];
-    return field.status === ValidationStatus.SUCCESS;
+    return field.status === ValidationStatus.ERROR;
   });
 });
 
