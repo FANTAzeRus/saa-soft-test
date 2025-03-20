@@ -15,13 +15,13 @@
     <n-select
         v-model:value="form.recordType.data"
         :options="recordTypesList"
-        @change="(newType: RecordType) => changeRecordType(newType)"
+        @change="(newType: AccountType) => changeRecordType(newType)"
         :passively-activated="true"
         :status="form.recordType.status"
         placeholder="Значение..."
     />
 
-    <template v-if="account.recordType === RecordType.LDAP">
+    <template v-if="account.recordType === AccountType.LDAP">
       <n-input
           v-model:value="form.login.data"
           @blur="validateAndSave"
@@ -63,10 +63,10 @@
 
 <script setup lang="ts">
 
-import type {Account, AccountFormData} from "@/types/Account.ts";
-import {RecordType} from "@/types/RecordType.ts";
+import type {Account, AccountForm} from "@/types/Account.ts";
+import {AccountType} from "@/types/AccountType.ts";
 import type {LabelItem} from "@/types/Label.ts";
-import {computed, reactive, ref} from "vue";
+import {computed, reactive} from "vue";
 import {NButton, NInput, NSelect} from "naive-ui";
 import TrashIcon from "@/components/TrashIcon.vue";
 import {useAccountStore} from "@/stores/account.ts";
@@ -81,7 +81,7 @@ interface Props {
 const {account, idx} = defineProps<Props>();
 const store = useAccountStore();
 
-const customDisplayLabel = (label: LabelItem[] | null | undefined): string => {
+const customDisplayLabel = (label: LabelItem[] | null): string => {
   if (label)
     return label
         .map(item => item.text)
@@ -90,7 +90,7 @@ const customDisplayLabel = (label: LabelItem[] | null | undefined): string => {
   return "";
 }
 
-const form = reactive<AccountFormData>({
+const form = reactive<AccountForm>({
   label: {
     data: customDisplayLabel(account.label),
     status: ValidationStatus.SUCCESS,
@@ -115,12 +115,12 @@ const form = reactive<AccountFormData>({
 
 const recordTypesList = [
   {
-    label: RecordType.LOCAL,
-    value: RecordType.LOCAL,
+    label: AccountType.LOCAL,
+    value: AccountType.LOCAL,
   },
   {
-    label: RecordType.LDAP,
-    value: RecordType.LDAP,
+    label: AccountType.LDAP,
+    value: AccountType.LDAP,
   }
 ];
 
@@ -128,21 +128,16 @@ const removeAccountHandler = () => {
   store.removeAccount(idx);
 }
 
-const changeRecordType = (newType: RecordType): void => {
+const changeRecordType = (newType: AccountType): void => {
   form.recordType.data = newType;
   validateAndSave();
 }
 
 const hasErrors = computed(() => {
-  const errors = ref([]);
-  for (const field in form) {
-    const value = form[field];
-    if(value.status === ValidationStatus.ERROR) {
-      errors.value.push(field);
-    }
-  }
-
-  return errors.value.length;
+  return Object.keys(form).every((fieldName: FieldName) => {
+    const field = form[fieldName];
+    return field.status === ValidationStatus.SUCCESS;
+  });
 });
 
 const stringToLabels = (str: string): LabelItem[] => {
@@ -159,7 +154,7 @@ const labelsToString = (labels: LabelItem[]):string => {
 const validateAndSave = () => {
   const data: Account = {
     label: null,
-    recordType: null,
+    recordType: AccountType.LOCAL,
     login: null,
     password: null,
  };
@@ -175,11 +170,11 @@ const validateAndSave = () => {
         break;
 
       case "recordType":
-        if(form.recordType.data && form.recordType.data === RecordType.LDAP) {
+        if(form.recordType.data && form.recordType.data === AccountType.LDAP) {
           data.password = null;
         }
         if(form.recordType.data) {}
-          data.recordType = form.recordType.data as RecordType;
+          data.recordType = form.recordType.data as AccountType;
         form.recordType.status = recordTypeValidator(form.recordType.data) ? ValidationStatus.SUCCESS : ValidationStatus.ERROR;
         break;
 
@@ -189,7 +184,7 @@ const validateAndSave = () => {
         break;
 
       case "password":
-        if(form.recordType.data === RecordType.LDAP) {
+        if(form.recordType.data === AccountType.LDAP) {
           form.password.status = ValidationStatus.SUCCESS;
           form.password.data = null;
         } else {
@@ -197,12 +192,9 @@ const validateAndSave = () => {
           data.password = form.password.data;
         }
         break;
-
-
     }
 
   });
-
 
   store.updateAccount(idx, data);
 

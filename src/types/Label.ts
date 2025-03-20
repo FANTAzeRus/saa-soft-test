@@ -1,3 +1,3 @@
-export type LabelItem = {
+export interface LabelItem {
   text: string;
 }

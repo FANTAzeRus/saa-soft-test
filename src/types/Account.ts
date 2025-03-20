@@ -1,20 +1,22 @@
 import type {LabelItem} from "@/types/Label.ts";
-import type {RecordType} from "@/types/RecordType.ts";
+import type {AccountType} from "@/types/AccountType.ts";
 import {ValidationStatus} from "@/types/ValidationStatus.ts";
 
-export type Account = {
-  label?: LabelItem[] | null,
-  recordType: RecordType | null,
+export interface Account {
+  label: LabelItem[] | null,
+  recordType: AccountType | null,
   login: string | null,
   password: string | null,
 }
 
-export interface FormField {
-  data: string | RecordType | null;
+export interface FormField<T> {
+  data: T;
   status: ValidationStatus;
-  validator?: (value: string | RecordType) => boolean;
+  validator?: (value: T) => boolean;
 }
 
-export type fieldName = 'label' | 'recordType' | 'login' | 'password';
+export type FieldName = 'label' | 'recordType' | 'login' | 'password';
 
-export type AccountFormData = Record<fieldName, FormField>;
+export type AccountForm = {
+  [key in FieldName]: FormField<any>
+};

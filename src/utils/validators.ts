@@ -1,10 +1,10 @@
-import {RecordType} from "@/types/RecordType.ts";
+import {AccountType} from "@/types/AccountType.ts";
 
 export function labelValidator(value:string):boolean {
   return !value ? true : value.length <= 50;
 }
 
-export function recordTypeValidator(value:string | RecordType | null): boolean {
+export function recordTypeValidator(value:AccountType | null): boolean {
   return value !== undefined && value !== null;
 }
 
