@@ -8,7 +8,7 @@
         v-model:value="form.label.data"
         @blur="validateAndSave"
         :status="form.label.status"
-        :autofocus="false"
+        :autofocus="true"
         placeholder="Значение..."
     />
 
